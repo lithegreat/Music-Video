@@ -27,10 +27,10 @@ class LLM:
             stream=True,
         )
         response_message = chat_completion_stream_response['message']['content']
-        #For generating the 
+        #For generating the
         for chunk in chat_completion_stream_response:
             print(chunk.choices[0].delta.content or "", end="", flush=True)
-        
+
         return response_message
     #Generates general controlling prompt 
     def generateText(self, topic, visualize=True):
@@ -43,13 +43,8 @@ class LLM:
     def getTitle(self, text):
         pattern = r'\*\*Song Title:\*\*\s*"([^"]+)"'
         match = re.search(pattern, text)
-        song_title = match.group(1)
         return song_title
     def getGenere(self, text): 
-        pattern = r'\*\*Genre:\*\*\s*(.+)'
-        match = re.search(pattern, text)
-        genre = match.group(1)
-        return genre
     def getLyrics(self, text): 
         lyrics_pattern = re.compile(r"\*\*Lyrics:\*\*\n\n(.*?)\n\n\*\*Audio Recording:\*\*", re.DOTALL)
         # Extract the lyrics
@@ -82,14 +77,11 @@ class LLM:
 
 
 
-
-
-#ToDo add examples to the prompt 
+#ToDo add examples to the prompt
 topic = ""
-prompt = f"""Write a set of compelling lyrics for a song with topic {topic} and perform it with your exceptional singing skills. The lyrics should 
-convey a meaningful message or tell a captivating story, and your performance should showcase your vocal abilities and emotional expression. 
-Your goal is to create an original and engaging musical piece that resonates with the audience. Feel free to explore various themes and musical styles 
+prompt = f"""Write a set of compelling lyrics for a song with topic {topic} and perform it with your exceptional singing skills. The lyrics should
+convey a meaningful message or tell a captivating story, and your performance should showcase your vocal abilities and emotional expression.
+Your goal is to create an original and engaging musical piece that resonates with the audience. Feel free to explore various themes and musical styles
 to demonstrate the depth of your talent as a lyricist and singer.
 """
 lyrics = ask_llama_3_8b_TOGETHER_API(system_intel, prompt)
-

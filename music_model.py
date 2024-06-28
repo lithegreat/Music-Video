@@ -1,7 +1,9 @@
-#Bring in the model this will automatically download the weights 
+#Bring in the model this will automatically download the weights
 from audiocraft.models import musicgen
 from audiocraft.utils.notebook import display_audio
 import torch
+import soundfile as sf
+class musicModel:
 import librosa
 from pydub import AudioSegment
 import io
@@ -13,7 +15,7 @@ class musicModel:
         self.model = musicgen.MusicGen.get_pretrained(model_type, device=self.device)
         self.audio_length = audio_length
         self.__set_audio_length()
-    
+
     def __set_audio_length(self):
         self.model.set_generation_params(duration=self.audio_length)
     def generateAudio(self, instructions): 
