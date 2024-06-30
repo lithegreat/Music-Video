@@ -39,8 +39,6 @@ class LLM:
     #Generates general controlling prompt 
     def generateText(self, topic, visualize=True):
         prompt = self.__lyric_prompt.format(topic=topic)
-        if visualize: 
-            self.ask_llama_3_8b_stream_TOGETHER_API(prompt)
         return self.ask_llama_3_8b_TOGETHER_API(prompt)
     def generateStory(self, text):
         self.__intel =  self.__intel_story_writer
@@ -91,7 +89,7 @@ class LLM:
         story = self.generateStory(text)
         key_frames = self.generateKeyFrames(story)
         image_prompts = self.generateImagePrompt(key_frames)
-        return image_prompts
+        return image_prompts, key_frames
     def extractKeyFrames(self,keyframes): 
         pattern = re.compile(r'(\*\*Keyframe \d+:.*?\*\*.*?Negative prompt:.*?(?=\*\*Keyframe \d+:|\Z))', re.DOTALL)
         # Find all keyframes
