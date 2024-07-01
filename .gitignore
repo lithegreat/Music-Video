@@ -1,2 +1,1 @@
-# Ignore all directories named 'install'
-**/install/
+/output/
