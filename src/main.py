@@ -118,7 +118,32 @@ async def process_topicCompleteVideo(topic, LLManager, diffusionManager, access_
                     video_list.append(video_filename)
                     break
         await asyncio.sleep(3)
-
+    """
+    # Define a queue of prompts
+    prompts = deque(key_frame_list)  
+    while prompts:
+        prompt = prompts.popleft()  # Get the next prompt from the queue
+        # The image path can be empty
+        img_file = ""
+        
+        print(f"Processing prompt: {prompt}")
+        make_json = dreamMachineMake(prompt, access_token, img_file)
+        print(make_json)
+        task_id = make_json[0]["id"]
+        
+        while True:
+            response_json = refreshDreamMachine(access_token)
+    
+            for it in response_json:
+                if it["id"] == task_id:
+                    print(f"proceeding state {it['state']}")
+                    if it['video']:
+                        print(f"New video link: {it['video']['url']}")
+                        break
+            await asyncio.sleep(3)
+       
+            break
+     """
 
 async def main():
     # Initialize managers
