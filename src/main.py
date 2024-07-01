@@ -1,3 +1,4 @@
+import os
 import asyncio
 import time
 import aiohttp
@@ -16,13 +17,14 @@ diffusionManager = diffusion()
 
 
 async def download_video(url, filename):
+    output_path = os.path.join("../output/video", filename)
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             if response.status == 200:
-                f = await aiofiles.open(filename, mode="wb")
+                f = await aiofiles.open(output_path, mode="wb")
                 await f.write(await response.read())
                 await f.close()
-                print(f"Video downloaded: {filename}")
+                print(f"Video downloaded: {output_path}")
             else:
                 print(f"Failed to download video: {url}")
 

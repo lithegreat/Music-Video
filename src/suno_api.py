@@ -1,4 +1,4 @@
-import time
+import os
 import requests
 
 # replace your vercel domain
@@ -42,10 +42,11 @@ def get_quota_information():
 
 def download_audio(audio_url, filename):
     response = requests.get(audio_url)
+    output_path = os.path.join("../output/audio", filename)
     if response.status_code == 200:
-        with open(filename, 'wb') as f:
+        with open(output_path, 'wb') as f:
             f.write(response.content)
-        print(f"Audio downloaded: {filename}")
+        print(f"Audio downloaded: {output_path}")
     else:
         print(f"Failed to download audio: {audio_url}")
 
