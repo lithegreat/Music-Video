@@ -16,6 +16,15 @@ LLManager = LLM("I met my ex on Tik-Tok")
 diffusionManager = diffusion()
 
 
+def uniteTags(text, LLManager): 
+    tempo = LLManager.getTempo(text)
+    key = LLManager.getKey(text)
+    audio_recording = LLManager.getAudioRecording(text)
+    vocal_performance = LLManager.getVocalPerformance(text)
+    time_signature = LLManager.getTimeSignature(text)
+    tags = tempo + ' ' + key + ' ' + audio_recording + ' ' + vocal_performance + ' ' + time_signature   
+    return tags
+
 async def download_video(url, filename):
     output_path = os.path.join("../output/video", filename)
     async with aiohttp.ClientSession() as session:
@@ -31,12 +40,17 @@ async def download_video(url, filename):
 
 async def process_topic(topic, LLManager, diffusionManager, access_token):
     video_list = []
+    
+    text = LLManager.generateText(topic)
+    lyrics = LLManager.getLyrics(text)
+    title = LLManager.getTitle(text)
+    tags = uniteTags(text)
 
-    lyrics = LLManager.getLyrics()
+    title = LLManager.get
     payload = {
         "prompt": lyrics,
-        "tags": "pop metal male melancholic",
-        "title": "Silent Battlefield",
+        "tags": tags,
+        "title": title,
         "make_instrumental": False,
         "wait_audio": False
     }
@@ -56,7 +70,7 @@ async def process_topic(topic, LLManager, diffusionManager, access_token):
         time.sleep(5)
 
 
-    image_prompts, key_frame_list = LLManager.generateImagePrompt(topic)
+    image_prompts, key_frame_list = LLManager.generateImagePrompt(text)
     image_prompts_list = LLManager.extractKeyFrames(image_prompts)
 
     for keyframe, image_prompt in zip(key_frame_list, image_prompts_list):
@@ -94,7 +108,8 @@ async def process_topic(topic, LLManager, diffusionManager, access_token):
 
 async def process_topicCompleteVideo(topic, LLManager, diffusionManager, access_token):
     video_list = []
-    image_prompts, key_frame_list = LLManager.generateImagePrompt(topic)
+    text = LLManager.generateText(topic)
+    image_prompts, key_frame_list = LLManager.generateImagePrompt(text)
     image_prompts_list = LLManager.extractKeyFrames(image_prompts)
 
     # img = diffusionManager.generateImage(image_prompt, steps=20)

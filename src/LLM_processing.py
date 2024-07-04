@@ -61,6 +61,22 @@ class LLM:
         match = tempo_pattern.search(text)
         tempo = match.group(1) 
         return tempo
+    def getKey(self, text): 
+        key_pattern = r"\*\*Key:\*\* ([A-G][#b]? (?:Major|Minor))"
+        match = key_pattern.search(text)
+        key = match.group(1) 
+        return key
+    def getAudioRecording(self, text): 
+        # Regular expression patterns to extract the audio recording and vocal performance sections
+        audio_recording_pattern = r"\*\*Audio Recording:\*\*([\s\S]*?)\*\*Vocal Performance:\*\*"
+        audio_recording_match = re.search(audio_recording_pattern, text)
+        audio_recording = audio_recording_match.group(1)
+        return audio_recording
+    def getVocalPerformance(self, text): 
+        vocal_performance_pattern = r"\*\*Vocal Performance:\*\*([\s\S]*)"
+        vocal_performance_match = re.search(vocal_performance_pattern, text)
+        vocal_performance = vocal_performance_match.group(1)
+        return vocal_performance
     def getTimeSignature(self, text): 
         time_signature_pattern = re.compile(r"\*\*Time Signature:\*\* ([0-9]/[0-9])")
         # Extract the time signature
@@ -84,8 +100,7 @@ class LLM:
             {text}
         """
         return self.ask_llama_3_8b_TOGETHER_API(image_prompt)
-    def generateImagePrompts(self, topic):
-        text = self.generateText(topic)
+    def generateImagePrompts(self, text):
         story = self.generateStory(text)
         key_frames = self.generateKeyFrames(story)
         image_prompts = self.generateImagePrompt(key_frames)
