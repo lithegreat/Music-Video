@@ -44,7 +44,6 @@ async def process_topic(topic, LLManager, diffusionManager, access_token):
     title = LLManager.getTitle(text)
     tags = uniteTags(text)
 
-    title = LLManager.get
     payload = {
         "prompt": lyrics,
         "tags": tags,
@@ -104,9 +103,10 @@ async def process_topic(topic, LLManager, diffusionManager, access_token):
     )
     audio_clip_1 = AudioFileClip(f"{title}_audio1.mp3")
     audio_clip_2 = AudioFileClip(f"{title}_audio2.mp3")
-    final_audio_clip = concatenate_audioclips([audio_clip_1, audio_clip_2])
+    #final_audio_clip = concatenate_audioclips([audio_clip_1, audio_clip_2])
 
-    final_clip_with_audio = final_clip.set_audio(final_audio_clip)
+
+    final_clip_with_audio = final_clip.set_audio(audio_clip_1)
     final_output_filename = f"{topic.replace(' ', '_')}_final_output.mp4"
     final_clip_with_audio.write_videofile(final_output_filename, codec="libx264", audio_codec="aac")
     print(f"Video generated with the frame approach successfully! Output file: {final_output_filename}")
