@@ -8,9 +8,7 @@ from imageGenerator import diffusion
 from DreamMachineAPI.util import dreamMachineMake, refreshDreamMachine
 from suno_api import custom_generate_audio, get_audio_information, download_audio
 import matplotlib.pyplot as plt
-from moviepy.editor import VideoFileClip, concatenate_videoclips
-
-
+from moviepy.editor import VideoFileClip, concatenate_videoclips, AudioFileClip, concatenate_audioclips
 
 LLManager = LLM("I met my ex on Tik-Tok")
 diffusionManager = diffusion()
@@ -104,11 +102,46 @@ async def process_topic(topic, LLManager, diffusionManager, access_token):
     final_clip.write_videofile(
         f"{topic.replace(' ', '_')}_final_video.mp4", codec="libx264"
     )
+    audio_clip_1 = AudioFileClip(f"{title}_audio1.mp3")
+    audio_clip_2 = AudioFileClip(f"{title}_audio2.mp3")
+    final_audio_clip = concatenate_audioclips([audio_clip_1, audio_clip_2])
 
+    final_clip_with_audio = final_clip.set_audio(final_audio_clip)
+    final_output_filename = f"{topic.replace(' ', '_')}_final_output.mp4"
+    final_clip_with_audio.write_videofile(final_output_filename, codec="libx264", audio_codec="aac")
+    print(f"Video generated with the frame approach successfully! Output file: {final_output_filename}")
 
 async def process_topicCompleteVideo(topic, LLManager, diffusionManager, access_token):
     video_list = []
     text = LLManager.generateText(topic)
+    lyrics = LLManager.getLyrics(text)
+    title = LLManager.getTitle(text)
+    tags = uniteTags(text)
+
+    title = LLManager.get
+    payload = {
+        "prompt": lyrics,
+        "tags": tags,
+        "title": title,
+        "make_instrumental": False,
+        "wait_audio": False
+    }
+    audio_data = custom_generate_audio(payload)
+    audio_ids = f"{audio_data[0]['id']},{audio_data[1]['id']}"
+    print(f"Audio IDs: {audio_ids}")
+
+    # Get audio information
+    for _ in range(60):
+        information = get_audio_information(audio_ids)
+        if information[0]["status"] == "streaming":
+            audio_url_1 = information[0]['audio_url']
+            audio_url_2 = information[1]['audio_url']
+            download_audio(audio_url_1, f"{title}_audio1.mp3")
+            download_audio(audio_url_2, f"{title}_audio2.mp3")
+            break
+        time.sleep(5)
+
+    
     image_prompts, key_frame_list = LLManager.generateImagePrompt(text)
     image_prompts_list = LLManager.extractKeyFrames(image_prompts)
 
@@ -117,6 +150,7 @@ async def process_topicCompleteVideo(topic, LLManager, diffusionManager, access_
     filename = f"{title}.png"
     # img.save(filename)
     combined_string = " ".join(key_frame_list)
+
 
     # Generate video
     make_json = dreamMachineMake("", access_token, combined_string)
@@ -133,6 +167,16 @@ async def process_topicCompleteVideo(topic, LLManager, diffusionManager, access_
                     video_list.append(video_filename)
                     break
         await asyncio.sleep(3)
+        break
+
+    audio_clip_1 = AudioFileClip(f"{title}_audio1.mp3")
+    audio_clip_2 = AudioFileClip(f"{title}_audio2.mp3")
+    final_audio_clip = concatenate_audioclips([audio_clip_1, audio_clip_2])
+
+    final_clip_with_audio = final_audio_clip.set_audio(final_audio_clip)
+    final_output_filename = f"{topic.replace(' ', '_')}_final_output.mp4"
+    final_clip_with_audio.write_videofile(final_output_filename, codec="libx264", audio_codec="aac")
+    print(f"Video generated with the whole video approach successfully! Output file: {final_output_filename}")
     """
     # Define a queue of prompts
     prompts = deque(key_frame_list)  
