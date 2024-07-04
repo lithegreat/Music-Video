@@ -5,7 +5,7 @@ import aiohttp
 import aiofiles
 from LLM_processing import LLM
 from imageGenerator import diffusion
-from src.util import dreamMachineMake, refreshDreamMachine
+from util import dreamMachineMake, refreshDreamMachine
 from suno_api import custom_generate_audio, get_audio_information, download_audio
 import matplotlib.pyplot as plt
 from moviepy.editor import VideoFileClip, concatenate_videoclips, AudioFileClip, concatenate_audioclips
@@ -116,7 +116,7 @@ async def process_topicCompleteVideo(topic, LLManager, diffusionManager, access_
     text = LLManager.generateText(topic)
     lyrics = LLManager.getLyrics(text)
     title = LLManager.getTitle(text)
-    tags = uniteTags(text)
+    tags = uniteTags(text, LLManager)
 
     title = LLManager.get
     payload = {
@@ -209,7 +209,7 @@ async def process_topicCompleteVideo(topic, LLManager, diffusionManager, access_
 
 async def main():
     # Initialize managers
-    topic_list = ["I met my ex on Tik-Tok", "Weather"]
+    topic_list = ["I met my ex on Tik-Tok", "Weather", "1. which came first,chicken or the egg", "Can we still be friends?", "If i could go back in time?"]
     access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsidXNlcl91dWlkIjoiNDU4M2UxNzMtNmJkMi00NDlhLTllNzAtYzE1M2ViNzQ1MzliIiwiY2xpZW50X2lkIjoiIn0sImV4cCI6MTcyMDE4ODUxMn0.NCRjBo-GDmx0Wm78rVwxqI4U3ovz2JJnjQuWw3r03JY"
     tasks = []
     for topic in topic_list:

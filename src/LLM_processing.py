@@ -59,7 +59,10 @@ class LLM:
     def getTempo(self, text): 
         tempo_pattern = re.compile(r"\*\*Tempo:\*\* (.*? BPM)")
         match = tempo_pattern.search(text)
-        tempo = match.group(1) 
+        try: 
+            tempo = match.group(1) 
+        except:  
+            tempo = "100 BPM"
         return tempo
     def getKey(self, text): 
         key_pattern = r"\*\*Key:\*\* ([A-G][#b]? (?:Major|Minor))"
