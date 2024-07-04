@@ -168,12 +168,15 @@ async def process_topicCompleteVideo(topic, LLManager, diffusionManager, access_
                     break
         await asyncio.sleep(3)
         break
-
+    final_clip = VideoFileClip(video_list[0])
+    final_clip.write_videofile(
+        f"{topic.replace(' ', '_')}_final_video.mp4", codec="libx264"
+    )
     audio_clip_1 = AudioFileClip(f"{title}_audio1.mp3")
     audio_clip_2 = AudioFileClip(f"{title}_audio2.mp3")
-    final_audio_clip = concatenate_audioclips([audio_clip_1, audio_clip_2])
+    #final_audio_clip = concatenate_audioclips([audio_clip_1, audio_clip_2])
 
-    final_clip_with_audio = final_audio_clip.set_audio(final_audio_clip)
+    final_clip_with_audio = final_clip.set_audio(audio_clip_1)
     final_output_filename = f"{topic.replace(' ', '_')}_final_output.mp4"
     final_clip_with_audio.write_videofile(final_output_filename, codec="libx264", audio_codec="aac")
     print(f"Video generated with the whole video approach successfully! Output file: {final_output_filename}")
@@ -206,7 +209,7 @@ async def process_topicCompleteVideo(topic, LLManager, diffusionManager, access_
 
 async def main():
     # Initialize managers
-    topic_list = ["I met my ex on Tik-Tok"]
+    topic_list = ["I met my ex on Tik-Tok", "Weather"]
     access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsidXNlcl91dWlkIjoiNDU4M2UxNzMtNmJkMi00NDlhLTllNzAtYzE1M2ViNzQ1MzliIiwiY2xpZW50X2lkIjoiIn0sImV4cCI6MTcyMDE4ODUxMn0.NCRjBo-GDmx0Wm78rVwxqI4U3ovz2JJnjQuWw3r03JY"
     tasks = []
     for topic in topic_list:
