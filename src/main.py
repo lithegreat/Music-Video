@@ -5,7 +5,7 @@ import aiohttp
 import aiofiles
 from LLM_processing import LLM
 from imageGenerator import diffusion
-from DreamMachineAPI.util import dreamMachineMake, refreshDreamMachine
+from src.util import dreamMachineMake, refreshDreamMachine
 from suno_api import custom_generate_audio, get_audio_information, download_audio
 import matplotlib.pyplot as plt
 from moviepy.editor import VideoFileClip, concatenate_videoclips, AudioFileClip, concatenate_audioclips
@@ -213,7 +213,7 @@ async def main():
     access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsidXNlcl91dWlkIjoiNDU4M2UxNzMtNmJkMi00NDlhLTllNzAtYzE1M2ViNzQ1MzliIiwiY2xpZW50X2lkIjoiIn0sImV4cCI6MTcyMDE4ODUxMn0.NCRjBo-GDmx0Wm78rVwxqI4U3ovz2JJnjQuWw3r03JY"
     tasks = []
     for topic in topic_list:
-        tasks.append(process_topic(topic, LLManager, diffusionManager, access_token))
+        tasks.append(process_topicCompleteVideo(topic, LLManager, diffusionManager, access_token))
     await asyncio.gather(*tasks)
 
 
