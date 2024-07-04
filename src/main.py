@@ -15,6 +15,7 @@ diffusionManager = diffusion()
 
 
 def uniteTags(text, LLManager): 
+    print(text)
     tempo = LLManager.getTempo(text)
     key = LLManager.getKey(text)
     audio_recording = LLManager.getAudioRecording(text)
@@ -118,7 +119,6 @@ async def process_topicCompleteVideo(topic, LLManager, diffusionManager, access_
     title = LLManager.getTitle(text)
     tags = uniteTags(text, LLManager)
 
-    title = LLManager.get
     payload = {
         "prompt": lyrics,
         "tags": tags,
