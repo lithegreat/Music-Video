@@ -14,14 +14,14 @@ LLManager = LLM("I met my ex on Tik-Tok")
 diffusionManager = diffusion()
 
 
-def uniteTags(text, LLManager): 
+def uniteTags(text, LLManager):
     print(text)
     tempo = LLManager.getTempo(text)
     key = LLManager.getKey(text)
     audio_recording = LLManager.getAudioRecording(text)
     vocal_performance = LLManager.getVocalPerformance(text)
     time_signature = LLManager.getTimeSignature(text)
-    tags = tempo + ' ' + key + ' ' + audio_recording + ' ' + vocal_performance + ' ' + time_signature   
+    tags = tempo + ' ' + key + ' ' + audio_recording + ' ' + vocal_performance + ' ' + time_signature
     return tags
 
 async def download_video(url, filename):
@@ -39,7 +39,7 @@ async def download_video(url, filename):
 
 async def process_topic(topic, LLManager, diffusionManager, access_token):
     video_list = []
-    
+
     text = LLManager.generateText(topic)
     lyrics = LLManager.getLyrics(text)
     title = LLManager.getTitle(text)
@@ -141,7 +141,7 @@ async def process_topicCompleteVideo(topic, LLManager, diffusionManager, access_
             break
         time.sleep(5)
 
-    
+
     image_prompts, key_frame_list = LLManager.generateImagePrompt(text)
     image_prompts_list = LLManager.extractKeyFrames(image_prompts)
 
@@ -182,20 +182,20 @@ async def process_topicCompleteVideo(topic, LLManager, diffusionManager, access_
     print(f"Video generated with the whole video approach successfully! Output file: {final_output_filename}")
     """
     # Define a queue of prompts
-    prompts = deque(key_frame_list)  
+    prompts = deque(key_frame_list)
     while prompts:
         prompt = prompts.popleft()  # Get the next prompt from the queue
         # The image path can be empty
         img_file = ""
-        
+
         print(f"Processing prompt: {prompt}")
         make_json = dreamMachineMake(prompt, access_token, img_file)
         print(make_json)
         task_id = make_json[0]["id"]
-        
+
         while True:
             response_json = refreshDreamMachine(access_token)
-    
+
             for it in response_json:
                 if it["id"] == task_id:
                     print(f"proceeding state {it['state']}")
@@ -203,7 +203,7 @@ async def process_topicCompleteVideo(topic, LLManager, diffusionManager, access_
                         print(f"New video link: {it['video']['url']}")
                         break
             await asyncio.sleep(3)
-       
+
             break
      """
 
