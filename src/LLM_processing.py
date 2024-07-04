@@ -65,7 +65,7 @@ class LLM:
             tempo = "100 BPM"
         return tempo
     def getKey(self, text): 
-        key_pattern = r"\*\*Key:\*\* ([A-G][#b]? (?:Major|Minor))"
+        key_pattern = re.compile(r"\*\*Key:\*\* ([A-G][#b]? (?:Major|Minor))")
         match = key_pattern.search(text)
         key = match.group(1) 
         return key
