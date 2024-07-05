@@ -128,9 +128,10 @@ class LLM:
         return self.ask_llama_3_8b_TOGETHER_API(prompt)
     
     def getTitle(self, text):
-        pattern = r'\*\*Song Title:\*\*\s*"([^"]+)"'
+        pattern = re.compile(r'\*\*Song Title:\*\*\s*"([^"]+)"')
         match = re.search(pattern, text)
-        return match
+        title = match.group(1)
+        return title
     def getLyrics(self, text): 
         lyrics_pattern = re.compile(r"\*\*Lyrics:\*\*\n\n(.*?)\n\n\*\*Audio Recording:\*\*", re.DOTALL)
         # Extract the lyrics
@@ -143,7 +144,7 @@ class LLM:
         try: 
             tempo = match.group(1) 
         except:  
-            tempo = "100 BPM"
+            tempo = "Moderate (100 BPM)"
         return tempo
     def getKey(self, text): 
         key_pattern = re.compile(r"\*\*Key:\*\* ([A-G][#b]? (?:Major|Minor))")
@@ -152,12 +153,12 @@ class LLM:
         return key
     def getAudioRecording(self, text): 
         # Regular expression patterns to extract the audio recording and vocal performance sections
-        audio_recording_pattern = r"\*\*Audio Recording:\*\*([\s\S]*?)\*\*Vocal Performance:\*\*"
+        audio_recording_pattern = re.compile(r"\*\*Audio Recording:\*\*([\s\S]*?)\*\*Vocal Performance:\*\*")
         audio_recording_match = re.search(audio_recording_pattern, text)
         audio_recording = audio_recording_match.group(1)
         return audio_recording
     def getVocalPerformance(self, text): 
-        vocal_performance_pattern = r"\*\*Vocal Performance:\*\*([\s\S]*)"
+        vocal_performance_pattern = re.compile(r"\*\*Vocal Performance:\*\*([\s\S]*)")
         vocal_performance_match = re.search(vocal_performance_pattern, text)
         vocal_performance = vocal_performance_match.group(1)
         return vocal_performance

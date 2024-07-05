@@ -15,13 +15,11 @@ diffusionManager = diffusion()
 
 
 def uniteTags(text, LLManager): 
-    print(text)
     tempo = LLManager.getTempo(text)
     key = LLManager.getKey(text)
     audio_recording = LLManager.getAudioRecording(text)
     vocal_performance = LLManager.getVocalPerformance(text)
-    time_signature = LLManager.getTimeSignature(text)
-    tags = tempo + ' ' + key + ' ' + audio_recording + ' ' + vocal_performance + ' ' + time_signature   
+    tags = tempo + ' ' + key + ' ' + audio_recording + ' ' + vocal_performance
     return tags
 
 async def download_video(url, filename):
@@ -44,11 +42,10 @@ async def process_topic(topic, LLManager, diffusionManager, access_token):
     lyrics = LLManager.getLyrics(text)
     title = LLManager.getTitle(text)
     tags = uniteTags(text)
+    payload_prompt =title + ' ' + lyrics + ' ' + tags 
 
     payload = {
-        "prompt": lyrics,
-        "tags": tags,
-        "title": title,
+        "prompt": payload_prompt,
         "make_instrumental": False,
         "wait_audio": False
     }
@@ -119,10 +116,10 @@ async def process_topicCompleteVideo(topic, LLManager, diffusionManager, access_
     title = LLManager.getTitle(text)
     tags = uniteTags(text, LLManager)
 
+    payload_prompt = title + ' ' + lyrics + ' ' + tags 
+    
     payload = {
-        "prompt": lyrics,
-        "tags": tags,
-        "title": title,
+        "prompt": payload_prompt,
         "make_instrumental": False,
         "wait_audio": False
     }
