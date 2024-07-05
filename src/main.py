@@ -40,8 +40,10 @@ async def process_topic(topic, LLManager, diffusionManager, access_token):
 
     text = LLManager.generateText(topic)
     lyrics = LLManager.getLyrics(text)
+    print(f"Lyrics: {lyrics}")
     title = LLManager.getTitle(text)
     tags = uniteTags(text)
+    payload_prompt =title + ' ' + lyrics + ' ' + tags
 
     payload = {
         "prompt": lyrics.replace("\n", "\\n"),
@@ -116,7 +118,9 @@ async def process_topicCompleteVideo(topic, LLManager, diffusionManager, access_
     lyrics = LLManager.getLyrics(text)
     title = LLManager.getTitle(text)
     tags = uniteTags(text, LLManager)
-    
+
+    payload_prompt = title + ' ' + lyrics + ' ' + tags
+
     payload = {
         "prompt": lyrics.replace("\n", "\\n"),
         "tags": tags.replace("\n", "\\n"), 
