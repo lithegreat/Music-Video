@@ -9,7 +9,7 @@ from util import dreamMachineMake, refreshDreamMachine
 from suno_api import custom_generate_audio, get_audio_information, download_audio
 import matplotlib.pyplot as plt
 from moviepy.editor import VideoFileClip, concatenate_videoclips, AudioFileClip, concatenate_audioclips
-import re 
+import re
 
 
 LLManager = LLM("I met my ex on Tik-Tok")
@@ -22,6 +22,7 @@ def uniteTags(text, LLManager):
     vocal_performance = LLManager.getVocalPerformance(text)
     time_signature = LLManager.getTimeSignature(text)
     tags = tempo + ' ' + key + ' ' + audio_recording + ' ' + vocal_performance + ' ' + time_signature
+    # print(f"Tags: {tags} \n End of tags \n")
     return tags
 
 async def download_video(url, filename):
@@ -43,16 +44,18 @@ async def process_topic(topic, LLManager, diffusionManager, access_token):
     text = LLManager.generateText(topic)
     lyrics = LLManager.getLyrics(text)
     title = LLManager.getTitle(text)
-    tags = uniteTags(text)
+    print(f"\nTitle: {title}\n")
+    # tags = uniteTags(text)
 
-    payload = {
-        "prompt": lyrics.replace("\n", "\\n"),
-        "tags": tags.replace("\n", "\\n"), 
-        "title": title, 
+    audio_payload = {
+        "prompt": lyrics,
+        "tags": "pop metal male melancholic",
+        "title": title,
         "make_instrumental": False,
         "wait_audio": False
     }
-    audio_data = custom_generate_audio(payload)
+    audio_data = custom_generate_audio(audio_payload)
+    time.sleep(10)
     audio_ids = f"{audio_data[0]['id']},{audio_data[1]['id']}"
     print(f"Audio IDs: {audio_ids}")
 
@@ -123,24 +126,30 @@ async def process_topicCompleteVideo(topic, LLManager, diffusionManager, access_
 
     payload = {
         "prompt": lyrics,
-        "tags": tags, 
-        "title": title, 
+        "tags": "pop metal male melancholic",
+        "title": title,
         "make_instrumental": False,
         "wait_audio": False
     }
     audio_data = custom_generate_audio(payload)
-    audio_ids = f"{audio_data[0]['id']},{audio_data[1]['id']}"
-    print(f"Audio IDs: {audio_ids}")
+    audio_id = f"{audio_data[0]['id']}"
+    print(f"Audio IDs: {audio_id}")
 
-    # Get audio information
+
+    output_directory = "../output/audio"
+
     for _ in range(60):
-        information = get_audio_information(audio_ids)
-        if information[0]["status"] == "streaming":
-            audio_url_1 = information[0]['audio_url']
-            audio_url_2 = information[1]['audio_url']
-            download_audio(audio_url_1, f"{title}_audio1.mp3")
-            download_audio(audio_url_2, f"{title}_audio2.mp3")
+        data = get_audio_information(audio_id)
+        if data[0]["status"] == "streaming":
+            print(f"{data[0]['id']} ==> {data[0]['audio_url']}")
+
+            filename = f"{data[0]['id']}.mp3"
+            filepath = download_audio(data[0]['audio_url'], output_directory, filename)
+
+            print(f"Downloaded audio files to: {filepath}")
+
             break
+        # sleep 5s
         time.sleep(5)
 
 
