@@ -1,5 +1,6 @@
 import os
 import requests
+import time
 
 # replace your vercel domain
 base_url = "http://localhost:3000"
@@ -40,11 +41,12 @@ def get_quota_information():
     response = requests.get(url)
     return response.json()
 
+
 def download_audio(audio_url, filename):
     response = requests.get(audio_url)
     output_path = os.path.join("../output/audio", filename)
     if response.status_code == 200:
-        with open(output_path, 'wb') as f:
+        with open(output_path, "wb") as f:
             f.write(response.content)
         print(f"Audio downloaded: {output_path}")
     else:
@@ -52,9 +54,11 @@ def download_audio(audio_url, filename):
 
 
 # if __name__ == "__main__":
-#     data = generate_audio_by_prompt(
+#     data = custom_generate_audio(
 #         {
-#             "prompt": "A popular heavy metal song about war, sung by a deep-voiced male singer, slowly and melodiously. The lyrics depict the sorrow of people after the war.",
+#             "prompt": "[Verse 1]\nCruel flames of war engulf this land\nBattlefields filled with death and dread\nInnocent souls in darkness, they rest\nMy heart trembles in this silent test\n\n[Verse 2]\nPeople weep for loved ones lost\nBattered bodies bear the cost\nSeeking peace and hope once known\nOur grief transforms to hearts of stone\n\n[Chorus]\nSilent battlegrounds, no birds' song\nShadows of war, where we don't belong\nMay flowers of peace bloom in this place\nLet's guard this precious dream with grace\n\n[Bridge]\nThrough the ashes, we will rise\nHand in hand, towards peaceful skies\nNo more sorrow, no more pain\nTogether, we'll break these chains\n\n[Chorus]\nSilent battlegrounds, no birds' song\nShadows of war, where we don't belong\nMay flowers of peace bloom in this place\nLet's guard this precious dream with grace\n\n[Outro]\nIn unity, our strength will grow\nA brighter future, we'll soon know\nFrom the ruins, hope will spring\nA new dawn, we'll together bring",
+#             "tags": "pop metal male melancholic",
+#             "title": "Silent Battlefield",
 #             "make_instrumental": False,
 #             "wait_audio": False,
 #         }

@@ -40,12 +40,15 @@ async def process_topic(topic, LLManager, diffusionManager, access_token):
 
     text = LLManager.generateText(topic)
     lyrics = LLManager.getLyrics(text)
+    print(f"Lyrics: {lyrics}")
     title = LLManager.getTitle(text)
     tags = uniteTags(text)
-    payload_prompt =title + ' ' + lyrics + ' ' + tags 
+    payload_prompt =title + ' ' + lyrics + ' ' + tags
 
     payload = {
-        "prompt": payload_prompt,
+        "prompt": lyrics,
+        "tags": tags,
+        "title": title,
         "make_instrumental": False,
         "wait_audio": False
     }
@@ -116,8 +119,8 @@ async def process_topicCompleteVideo(topic, LLManager, diffusionManager, access_
     title = LLManager.getTitle(text)
     tags = uniteTags(text, LLManager)
 
-    payload_prompt = title + ' ' + lyrics + ' ' + tags 
-    
+    payload_prompt = title + ' ' + lyrics + ' ' + tags
+
     payload = {
         "prompt": payload_prompt,
         "make_instrumental": False,
