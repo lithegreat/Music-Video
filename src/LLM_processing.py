@@ -24,37 +24,19 @@ class LLM:
 
                                 **Lyrics:**
 
-                                Verse 1:
+                                [Verse 1]
                                 I was scrolling through my feed, feeling so alone
                                 When I saw your face, and my heart started to moan
                                 A swipe right, and our stories aligned
                                 Little did I know, our love would be redefined
 
-                                Chorus:
-                                I met my ex on Tik-Tok, in a world of endless fame
-                                We danced to the rhythm, of our own little game
-                                We laughed, we loved, we lived, in a virtual haze
-                                But now I'm left with just a memory, and a fading phase
-
-                                Verse 2:
+                                [Verse 2]
                                 We'd lip-sync to our favorite songs, and our hearts would beat as one
                                 We'd create our own stories, and our love would be won
                                 But like a fleeting dream, our love would fade away
                                 Leaving me with just a memory, of our digital day
 
-                                Chorus:
-                                I met my ex on Tik-Tok, in a world of endless fame
-                                We danced to the rhythm, of our own little game
-                                We laughed, we loved, we lived, in a virtual haze
-                                But now I'm left with just a memory, and a fading phase
-
-                                Bridge:
-                                We'd take a screenshot, of our love so true
-                                But like a ghost, our love would disappear from view
-                                I'm left with just a memory, of our digital past
-                                Wondering if our love will ever truly last
-
-                                Chorus:
+                                [Chorus]
                                 I met my ex on Tik-Tok, in a world of endless fame
                                 We danced to the rhythm, of our own little game
                                 We laughed, we loved, we lived, in a virtual haze
@@ -133,7 +115,7 @@ class LLM:
         title = match.group(1)
         return title
     def getLyrics(self, text): 
-        lyrics_pattern = re.compile(r"\*\*Lyrics\*\*\n\n(.*?)\n\n\*\*Audio Recording\*\*", re.DOTALL)
+        lyrics_pattern = re.compile(r"\*\*Lyrics:\*\*\n\n(.*?)\n\n\*\*Audio Recording:\*\*", re.DOTALL)
         # Extract the lyrics
         match = lyrics_pattern.search(text)
         lyrics = match.group(1)
