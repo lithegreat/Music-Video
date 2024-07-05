@@ -133,7 +133,7 @@ class LLM:
         title = match.group(1)
         return title
     def getLyrics(self, text): 
-        lyrics_pattern = re.compile(r"\*\*Lyrics:\*\*\n\n(.*?)\n\n\*\*Audio Recording:\*\*", re.DOTALL)
+        lyrics_pattern = re.compile(r"\*\*Lyrics\*\*\n\n(.*?)\n\n\*\*Audio Recording\*\*", re.DOTALL)
         # Extract the lyrics
         match = lyrics_pattern.search(text)
         lyrics = match.group(1)

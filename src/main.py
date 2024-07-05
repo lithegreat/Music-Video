@@ -9,6 +9,8 @@ from util import dreamMachineMake, refreshDreamMachine
 from suno_api import custom_generate_audio, get_audio_information, download_audio
 import matplotlib.pyplot as plt
 from moviepy.editor import VideoFileClip, concatenate_videoclips, AudioFileClip, concatenate_audioclips
+import re 
+
 
 LLManager = LLM("I met my ex on Tik-Tok")
 diffusionManager = diffusion()
@@ -39,11 +41,11 @@ async def process_topic(topic, LLManager, diffusionManager, access_token):
     video_list = []
 
     text = LLManager.generateText(topic)
+    text = re.sub(r'(Verse \d+|Chorus|Bridge):', r'[\1]', text)
     lyrics = LLManager.getLyrics(text)
     print(f"Lyrics: {lyrics}")
     title = LLManager.getTitle(text)
     tags = uniteTags(text)
-    payload_prompt =title + ' ' + lyrics + ' ' + tags
 
     payload = {
         "prompt": lyrics.replace("\n", "\\n"),
@@ -115,11 +117,11 @@ async def process_topic(topic, LLManager, diffusionManager, access_token):
 async def process_topicCompleteVideo(topic, LLManager, diffusionManager, access_token):
     video_list = []
     text = LLManager.generateText(topic)
+    text = re.sub(r'(Verse \d+|Chorus|Bridge):', r'[\1]', text)
+    print(text)
     lyrics = LLManager.getLyrics(text)
     title = LLManager.getTitle(text)
     tags = uniteTags(text, LLManager)
-
-    payload_prompt = title + ' ' + lyrics + ' ' + tags
 
     payload = {
         "prompt": lyrics.replace("\n", "\\n"),
