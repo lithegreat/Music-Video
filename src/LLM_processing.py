@@ -75,8 +75,77 @@ class LLM:
                                 * The performance features a range of props and visual elements, including screens, lights, and projections.
                                 * The choreography is designed to be dynamic and engaging, with a focus on conveying the emotional depth and complexity of the lyrics.
         """
+        self.__lyric_prompt_2 =  """Create a set of song lyrics of the topic {topic}, keep the length under 20 seconds, that demonstrate your vocal abilities and emotional expression. 
+                                The lyrics should be accompanied by a professional-level audio recording with clear enunciation and crystal-clear audio quality. 
+                                The song should feature a captivating melody and sophisticated arrangement, production, and performance. 
+                                The lyrics must rhyme to enhance the song's flow and aesthetic appeal. You are encouraged to explore various themes and musical styles, 
+                                but the final composition must meet the above criteria to showcase your talent and depth as a creator and performer. 
+                                The lyrics should convey emotional expression and physical actions to ensure a high-quality performance.
+                                Example:
+                                **Song Title:** "Swipe Right on Memories"
 
-        self.__story_prompt = """As a story writer, your task is to create a short story based on a given song lyric snippet. Each story should be detailed, highlighting the characters' emotions and relevant actions, and must be closely related to the content of the song lyric. Each story should be at least 200 words long.
+                                **Genre:** Pop-Rock with a hint of Electronic elements
+
+                                **Tempo:** Moderate (around 120 BPM)
+
+                                **Time Signature:** 4/4
+
+                                **Key:** C Major
+
+                                **Lyrics:**
+
+                                [Verse 1]
+                                I was scrolling through my feed, feeling so alone
+                                When I saw your face, and my heart started to moan
+                                A swipe right, and our stories aligned
+                                Little did I know, our love would be redefined
+
+                                [Verse 2]
+                                We'd lip-sync to our favorite songs, and our hearts would beat as one
+                                We'd create our own stories, and our love would be won
+                                But like a fleeting dream, our love would fade away
+                                Leaving me with just a memory, of our digital day
+
+                                [Chorus]
+                                I met my ex on Tik-Tok, in a world of endless fame
+                                We danced to the rhythm, of our own little game
+                                We laughed, we loved, we lived, in a virtual haze
+                                But now I'm left with just a memory, and a fading phase
+
+                                **Audio Recording:**
+
+                                The song features a mix of acoustic and electronic elements, with a focus on showcasing the vocalist's range and emotional expression. The arrangement is designed to build tension and release, with a focus on the chorus and bridge.
+
+                                * The verse features a simple, pulsing electronic beat, accompanied by a minimalist piano melody and subtle ambient pads.
+                                * The chorus introduces a driving rock rhythm, with crunching guitars and a soaring vocal performance.
+                                * The bridge features a haunting piano solo, accompanied by atmospheric synths and a subtle drum machine pattern.
+                                * The final chorus features a reprise of the rock rhythm, with added layers of harmonies and a dramatic build-up to the song's conclusion.
+
+                                **Vocal Performance:**
+
+                                The vocalist delivers a powerful, emotive performance, with a focus on conveying the emotional depth of the lyrics. The vocal range is showcased throughout the song, with a focus on the chorus and bridge.
+
+                                * The verse features a more subdued, introspective performance, with a focus on storytelling and emotional expression.
+                                * The chorus features a more dramatic, anthemic performance, with a focus on showcasing the vocalist's range and power.
+                                * The bridge features a more intimate, vulnerable performance, with a focus on conveying the emotional pain and longing.
+
+                                **Production and Performance:**
+
+                                The production is designed to be polished and professional, with a focus on showcasing the vocalist's performance and the song's emotional depth. The arrangement is carefully crafted to build tension and release, with a focus on the chorus and bridge.
+
+                                * The mix is balanced and clear, with a focus on the vocalist's performance and the song's emotional impact.
+                                * The mastering is designed to be loud and clear, with a focus on delivering a high-quality listening experience.
+
+                                **Physical Actions:**
+
+                                The performance features a range of physical actions, designed to enhance the emotional expression and storytelling of the lyrics.
+
+                                * The vocalist performs a range of gestures and movements, including hand gestures, facial expressions, and body language.
+                                * The performance features a range of props and visual elements, including screens, lights, and projections.
+                                * The choreography is designed to be dynamic and engaging, with a focus on conveying the emotional depth and complexity of the lyrics.
+        """
+
+        self.__story_prompt = """As a story writer, your task is to create a short story,  based on a given song lyric snippet. Each story should be detailed, highlighting the characters' emotions and relevant actions, and must be closely related to the content of the song lyric. Each story should be at least 200 words long.
 
                                 Your response should vividly capture the essence of the song lyric, incorporating the emotions and actions of the characters in a way that resonates with the given snippet. The story should convey a strong connection to the lyrical content, enriching the narrative with depth and relevance.
 
@@ -103,6 +172,9 @@ class LLM:
     #Generates general controlling prompt
     def generateText(self, topic, product_description, visualize=True):
         prompt = self.__lyric_prompt.format(topic=topic, product_description=product_description)
+        return self.ask_llama_3_8b_TOGETHER_API(prompt)
+    def generateTextGeneralVideo(self, topic, visualize=True):
+        prompt = self.__lyric_prompt_2.format(topic=topic)
         return self.ask_llama_3_8b_TOGETHER_API(prompt)
     def generateStory(self, text):
         self.__intel =  self.__intel_story_writer
@@ -153,63 +225,55 @@ class LLM:
         return time_signature
     def generateKeyFrames(self, text):
         key_frame_prompt= f"""
-        Generate a set of key frames frames from the following stories make them compelling
-        and interesting, they should be focused on attracting attention since they are for a
-        tik-tok video {text} 
+        BE CONSISTENT, generate a set of image prompts for keyframes, stick only to the format of example, do a maximum of 4 scences, from the following stories make them compelling and interesting, they should be focused on attracting attention since they are for a tik-tok video {text} 
         Examples: 
         **Scene 1: Introduction**
         Prompt:
         Photo of a worn leather-bound book with the title "Fantasy" embossed on the cover, placed on a wooden table with a warm and cozy atmosphere, morning time, indoors.
         Negative prompt:
-        disfigured, ugly, bad, immature, cartoon, anime, 3d, painting, b&w, 2d, illustration, sketch, nfsw, nud.
+        disfigured, ugly, bad, immature, cartoon, anime, 3d, painting, b&w, 2d, illustration, sketch, nfsw, nud, ouble legs, bad fingers, low quality
 
         **Scene 2: The Weight of the World**
         Prompt:
         Photo of a person (the narrator) sitting in a cozy bookstore, looking stressed and overwhelmed, with a subtle animation of words and symbols swirling around their head, representing the weight of the world, morning time, indoors.
         Negative prompt:
-        disfigured, ugly, bad, immature, cartoon, anime, 3d, painting, b&w, 2d, illustration, sketch, nfsw, nud.
+        disfigured, ugly, bad, immature, cartoon, anime, 3d, painting, b&w, 2d, illustration, sketch, nfsw, nud, ouble legs, bad fingers, low quality
 
         **Scene 3: The World of Fantasy**
         Prompt:
         Photo of a montage of illustrations and animations showcasing mythical creatures, magical landscapes, and epic quests, with a warm and inviting color palette, morning time, indoors.
         Negative prompt:
-        disfigured, ugly, bad, immature, cartoon, anime, 3d, painting, b&w, 2d, illustration, sketch, nfsw, nud.
+        disfigured, ugly, bad, immature, cartoon, anime, 3d, painting, b&w, 2d, illustration, sketch, nfsw, nud, ouble legs, bad fingers, low quality
 
         **Scene 4: Becoming One with the Characters**
         Prompt:
         Photo of a series of split-screen shots showing the narrator as different characters from their favorite books (e.g., a brave warrior, a cunning thief, a wise wizard), with a subtle animation of the character's features blending with theirs, morning time, indoors.
         Negative prompt:
-        disfigured, ugly, bad, immature, cartoon, anime, 3d, painting, b&w, 2d, illustration, sketch, nfsw, nud.
+        disfigured, ugly, bad, immature, cartoon, anime, 3d, painting, b&w, 2d, illustration, sketch, nfsw, nud, ouble legs, bad fingers, low quality
 
         **Scene 5: The Power of Fantasy**
         Prompt:
         Photo of a person (the narrator) sitting in a cozy bookstore, surrounded by books, with a warm and inviting smile, and a subtle animation of fantasy elements (e.g., dragons, unicorns, magic spells) swirling around them, morning time, indoors.
         Negative prompt:
-        disfigured, ugly, bad, immature, cartoon, anime, 3d, painting, b&w, 2d, illustration, sketch, nfsw, nud.
+        disfigured, ugly, bad, immature, cartoon, anime, 3d, painting, b&w, 2d, illustration, sketch, nfsw, nud, ouble legs, bad fingers, low quality
 
         **Scene 6: Conclusion**
         Prompt:
         Photo of a person (the narrator) closing a book and pushing it back onto the shelf, with a peaceful and content expression, morning time, indoors.
         Negative prompt:
-        disfigured, ugly, bad, immature, cartoon, anime, 3d, painting, b&w, 2d, illustration, sketch, nfsw, nud.
+        disfigured, ugly, bad, immature, cartoon, anime, 3d, painting, b&w, 2d, illustration, sketch, nfsw, nud, ouble legs, bad fingers, low quality
         """
         return self.ask_llama_3_8b_TOGETHER_API(key_frame_prompt)
-    def generateImagePrompt(self, text):
-        image_prompt = f"""Generate an image prompt for each of the keyframes, stick to style of the example
+    def generateAnimationPrompt(self, keyframe, story):
+        image_prompt = f"""
+            Generate animation instructions, stick to the format of the example, based on the following keyframe and story keyframe: {keyframe}, story: {story}
             Example:
-            Prompt:
-            photo of a ino woman in a race car with black hair and a black pilot outfit,morning time, dessert
-
-            Negative prompt:
-            disfigured, ugly, bad, immature, cartoon, anime, 3d, painting, b&w, 2d, 3d, illustration, sketch, nfsw, nud.
-            {text}
-        """
+            **Animation Instructions:**\n 1. Start with a static image of the narrator sitting in front of a computer or phone, surrounded by a blurred background of social media feeds.\n2. Add a subtle animation of likes and comments swirling around the narrator's head, using a gentle, wispy motion. This will give the impression of the narrator being surrounded by the digital world.\n3. As the narrator scrolls through Tik-Tok, add a slight blur effect to the background to give the impression of movement.\n4. When the narrator sees the stranger with piercing blue eyes and a charming smile, add a slight zoom effect to their face to draw attention to it.\n5. Use a warm and cozy color palette to set the tone for the scene, with a focus on calming blues and whites.\n6. Add some gentle, soft lighting to the scene to create a sense of intimacy and warmth.\n7. Use a mix of 2D and 3D elements to create a sense of depth and dimensionality in the scene.\n8. Avoid using any disfigured, ugly, or immature elements in the animation, and focus on creating a clean and polished look."""
         return self.ask_llama_3_8b_TOGETHER_API(image_prompt)
     def generateImagePrompts(self, text):
         story = self.generateStory(text)
-        key_frames = self.generateKeyFrames(story)
-        image_prompts = self.generateImagePrompt(key_frames)
-        return image_prompts, key_frames
+        image_prompts = self.generateKeyFrames(story)
+        return image_prompts, story
     
     def extractKeyFrames(self, keyframes):
         pattern = re.compile(r"""\*\*Scene\s(?P<number>\d+):\s(?P<title>.*?)\*\*\nPrompt:\n (?P<prompt>.*?)\nNegative\sprompt:\n(?P<negative_prompt>.*?)\n""", re.DOTALL | re.VERBOSE)

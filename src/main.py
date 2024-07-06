@@ -43,7 +43,7 @@ async def download_video(url, filename):
 async def process_topic(topic, product_description, LLManager, diffusionManager, access_token):
     video_list = []
 
-    text = LLManager.generateText(topic, product_description)
+    text = LLManager.generateTextGeneralVideo(topic)
     lyrics = LLManager.getLyrics(text)
     title = LLManager.getTitle(text)
     tags = uniteTags(text, LLManager)
@@ -72,20 +72,22 @@ async def process_topic(topic, product_description, LLManager, diffusionManager,
         time.sleep(5)
     """
 
-    image_prompts, key_frame_list = LLManager.generateImagePrompts(text) #Image prompt list in blank
+    image_prompts, story = LLManager.generateImagePrompts(text) #Image prompt list in blank
     image_prompts_list = LLManager.extractKeyFrames(image_prompts)
-    print(image_prompts_list)
-    for keyframe, image_prompt in zip(key_frame_list, image_prompts_list):
-        print("Image prompt: ", image_prompt)
-        img = diffusionManager.generateImage(image_prompt, steps=20)
 
+
+    for image_prompt in image_prompts_list:
+        img = diffusionManager.generateImage(image_prompt, steps=20)
+        animation_prompt = LLManager.generateAnimationPrompt(image_prompt, story)
         title = LLManager.extractIndividualKeyFrameTitle(image_prompt)
         filename = f"{title}.png"
         print("Filename: ", filename)
         img.save(filename)
 
+        print(animation_prompt)
         # Generate video
-        make_json = dreamMachineMake(keyframe, access_token, filename)
+        make_json = dreamMachineMake(animation_prompt, access_token, filename)
+        print("Make JSON: ", make_json)
         task_id = make_json[0]["id"]
         while True:
             response_json = refreshDreamMachine(access_token)
@@ -224,8 +226,8 @@ async def process_topicCompleteVideo(topic, product_description, LLManager, acce
 
 async def main():
     # Initialize managers
-    topic_list = ["An advertisement for Amazon.de"]
-    access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsidXNlcl91dWlkIjoiOGU2NzZmYTUtZGM5MS00MGU1LWJkZDEtNWRmZTFmY2JmOTU0IiwiY2xpZW50X2lkIjoiIn0sImV4cCI6MTcyMDg3ODA1OX0.BkQA-ugosliF75k73MWtPo8eIOWEQSsvn2t9bl7arj0"
+    topic_list = ["I met my ex on Tik-Tok"]
+    access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsidXNlcl91dWlkIjoiOGU2NzZmYTUtZGM5MS00MGU1LWJkZDEtNWRmZTFmY2JmOTU0IiwiY2xpZW50X2lkIjoiIn0sImV4cCI6MTcyMDg5NDI2M30.CIW7Qs1ZSpTXBlFLgoA5t2Vi3di1e6DzFoFfmuux6Jc'
     tasks = []
     for topic in topic_list:
         tasks.append(process_topic(topic, product_description, LLManager, diffusionManager, access_token))

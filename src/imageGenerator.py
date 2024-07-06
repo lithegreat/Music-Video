@@ -11,10 +11,10 @@ class diffusion:
         self.__key = "8069bcddb5b335ea3e2f23e9d58d83d5dfb270ee6ffcb8a546fbcdf8fb336dac" if key is None else key  
         self.__client = Together(api_key=self.__key) 
         
-    def generateImage(self, prompt, steps=10, seed=20): 
+    def generateImage(self, prompt, steps=10, seed=0): 
         response = self.__client.images.generate(
         prompt=prompt,
-        model="SG161222/Realistic_Vision_V3.0_VAE",
+        model="stabilityai/stable-diffusion-2-1",
         steps=steps,
         n=4,
         seed=seed)
