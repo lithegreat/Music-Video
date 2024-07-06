@@ -9,7 +9,7 @@ import requests
 proxies = {}
 
 
-def dreamMachineMake(prompt, access_token, img_file=None):
+def dreamMachineMake(prompt, access_token, img_file):
     url = "https://internal-api.virginia.labs.lumalabs.ai/api/photon/v1/generations/"
 
     if img_file:
