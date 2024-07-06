@@ -212,8 +212,7 @@ class LLM:
         return image_prompts, key_frames
     
     def extractKeyFrames(self, keyframes):
-        pattern = re.compile(r"""
-        \*\*Scene\s(?P<number>\d+):\s(?P<title>.*?)\*\*\nPrompt:\n (?P<prompt>.*?)\nNegative\sprompt:\n(?P<negative_prompt>.*?)\n""", re.DOTALL | re.VERBOSE)
+        pattern = re.compile(r"""\*\*Scene\s(?P<number>\d+):\s(?P<title>.*?)\*\*\nPrompt:\n (?P<prompt>.*?)\nNegative\sprompt:\n(?P<negative_prompt>.*?)\n""", re.DOTALL | re.VERBOSE)
 
         scenes = [match.groupdict() for match in pattern.finditer(keyframes)]
 
@@ -237,12 +236,6 @@ class LLM:
             return title
         else:
             print("No title found")
-        
-    def extractKeyFrames(self,keyframes):
-        pattern = re.compile(r'(\*\*Keyframe \d+:.*?\*\*.*?Negative prompt:.*?(?=\*\*Keyframe \d+:|\Z))', re.DOTALL)
-        # Find all keyframes
-        keyframes = pattern.findall(keyframes)
-        return keyframes
 
     def extractKeyFrameTitle(self, keyframe):
         title_match = re.search(r'\*\*(Keyframe \d+: [^*]+)\*\*', keyframe)

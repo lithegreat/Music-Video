@@ -10,7 +10,6 @@ from suno_api import custom_generate_audio, get_audio_information, download_audi
 import matplotlib.pyplot as plt
 from moviepy.editor import VideoFileClip, concatenate_videoclips, AudioFileClip, concatenate_audioclips
 import re 
-import matplotlib.pyplot as plt
 
 
 product_description = """Amazon Essentials Men's Short Sleeve T-Shirt with Crew Neck in Regular Fit, Pack of 2 Material Composition: Solids: 100% Cotton Heathered: 60% Cotton, 40% Polyester, Care Instructions: Machine wash warm, Tumble dry: Closure Type, Button: Collar Style, Crew neck"""
@@ -25,6 +24,7 @@ def uniteTags(text, LLManager):
     vocal_performance = LLManager.getVocalPerformance(text)
     time_signature = LLManager.getTimeSignature(text)
     tags = tempo + ' ' + key + ' ' + audio_recording + ' ' + vocal_performance + ' ' + time_signature
+    # print(f"Tags: {tags} \n End of tags \n")
     return tags
 
 async def download_video(url, filename):
@@ -56,6 +56,7 @@ async def process_topic(topic, product_description, LLManager, diffusionManager,
         "wait_audio": False
     }
     audio_data = custom_generate_audio(payload)
+    time.sleep(10)
     audio_ids = f"{audio_data[0]['id']},{audio_data[1]['id']}"
     print(f"Audio IDs: {audio_ids}")
 
@@ -73,7 +74,7 @@ async def process_topic(topic, product_description, LLManager, diffusionManager,
 
     image_prompts, key_frame_list = LLManager.generateImagePrompts(text) #Image prompt list in blank
     image_prompts_list = LLManager.extractKeyFrames(image_prompts)
-
+    print(image_prompts_list)
     for keyframe, image_prompt in zip(key_frame_list, image_prompts_list):
         print("Image prompt: ", image_prompt)
         img = diffusionManager.generateImage(image_prompt, steps=20)
@@ -128,23 +129,28 @@ async def process_topicCompleteVideo(topic, product_description, LLManager, acce
 
     """payload = {
         "prompt": lyrics,
-        "tags": tags, 
-        "title": title, 
+        "tags": "pop metal male melancholic",
+        "title": title,
         "make_instrumental": False,
         "wait_audio": False
     }
     audio_data = custom_generate_audio(payload)
-    audio_ids = f"{audio_data[0]['id']},{audio_data[1]['id']}"
-    print(f"Audio IDs: {audio_ids}")
+    audio_id = f"{audio_data[0]['id']}"
+    print(f"Audio IDs: {audio_id}")
 
-    # Get audio information
+
+    output_directory = "../output/audio"
+
     for _ in range(60):
-        information = get_audio_information(audio_ids)
-        if information[0]["status"] == "streaming":
-            audio_url_1 = information[0]['audio_url']
-            audio_url_2 = information[1]['audio_url']
-            download_audio(audio_url_1, f"{title}_audio1.mp3")
-            download_audio(audio_url_2, f"{title}_audio2.mp3")
+        data = get_audio_information(audio_id)
+        if data[0]["status"] == "streaming":
+            print(f"{data[0]['id']} ==> {data[0]['audio_url']}")
+
+            filename = f"{data[0]['id']}.mp3"
+            filepath = download_audio(data[0]['audio_url'], output_directory, filename)
+
+            print(f"Downloaded audio files to: {filepath}")
+
             break
         time.sleep(5)"""
 
@@ -219,7 +225,7 @@ async def process_topicCompleteVideo(topic, product_description, LLManager, acce
 async def main():
     # Initialize managers
     topic_list = ["An advertisement for Amazon.de"]
-    access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsidXNlcl91dWlkIjoiOGU2NzZmYTUtZGM5MS00MGU1LWJkZDEtNWRmZTFmY2JmOTU0IiwiY2xpZW50X2lkIjoiIn0sImV4cCI6MTcyMDg2NDM3N30.Zgb5a1sWIs5tNqTGRNgmzqQrgnqjiUzQmB8miKVWJ2U"
+    access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsidXNlcl91dWlkIjoiOGU2NzZmYTUtZGM5MS00MGU1LWJkZDEtNWRmZTFmY2JmOTU0IiwiY2xpZW50X2lkIjoiIn0sImV4cCI6MTcyMDg3ODA1OX0.BkQA-ugosliF75k73MWtPo8eIOWEQSsvn2t9bl7arj0"
     tasks = []
     for topic in topic_list:
         tasks.append(process_topic(topic, product_description, LLManager, diffusionManager, access_token))
