@@ -5,7 +5,7 @@
 ### 1. Clone the repo
 ```bash
 git clone https://gitlab.lrz.de/00000000014BAF53/music-video-dld.git
-cd DeepLearningDudes_Music_Video
+cd music-video-dld
 git submodule update --init --recursive
 ```
 ### 2. Install the requirements

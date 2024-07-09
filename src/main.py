@@ -9,7 +9,7 @@ from imageVideoGeneration.util import dreamMachineMake, refreshDreamMachine
 from musicModel.suno_api import custom_generate_audio, get_audio_information, download_audio
 import matplotlib.pyplot as plt
 from moviepy.editor import VideoFileClip, concatenate_videoclips, AudioFileClip, concatenate_audioclips
-import re 
+import re
 
 product_description = """Amazon Essentials Men's Short Sleeve T-Shirt with Crew Neck in Regular Fit, Pack of 2 Material Composition: Solids: 100% Cotton Heathered: 60% Cotton, 40% Polyester, Care Instructions: Machine wash warm, Tumble dry: Closure Type, Button: Collar Style, Crew neck"""
 
@@ -46,8 +46,8 @@ async def process_topic(topic, product_description, LLManager, diffusionManager,
 
     payload = {
         "prompt": lyrics,
-        "tags": tags, 
-        "title": topic, 
+        "tags": tags,
+        "title": topic,
         "make_instrumental": False,
         "wait_audio": False
     }
@@ -66,7 +66,7 @@ async def process_topic(topic, product_description, LLManager, diffusionManager,
             download_audio(audio_url_2, f"{title}_audio2.mp3")
             break
         time.sleep(5)
-    
+
     image_prompts, story = LLManager.generateImagePrompts(text) #Image prompt list in blank
     image_prompts_list = LLManager.extractKeyFrames(image_prompts)
 
@@ -119,9 +119,9 @@ async def process_topicCompleteVideo(topic, product_description, LLManager, difu
     lyrics = LLManager.getLyrics(text)
     title = topic
     tags = uniteTags(text, LLManager)
-    """payload = {
+    payload = {
         "prompt": lyrics,
-        "tags": "pop metal male melancholic",
+        "tags": "Pop-Rock with a hint of Electronic elements, Moderate (around 120 BPM), 4/4, C Major, girl voice",
         "title": title,
         "make_instrumental": False,
         "wait_audio": False
@@ -131,22 +131,26 @@ async def process_topicCompleteVideo(topic, product_description, LLManager, difu
     print(f"Audio IDs: {audio_id}")
 
 
-    output_directory = ""
+    output_directory = "outputs/audio/"
 
-    for _ in range(60):
+    start_time = time.time()
+
+    for retry_count in range(60):
+        elapsed_time = time.time() - start_time
+        print(f"Retry {retry_count + 1}/60 - Elapsed time: {elapsed_time:.1f} seconds")
         data = get_audio_information(audio_id)
         if data[0]["status"] == "streaming":
             print(f"{data[0]['id']} ==> {data[0]['audio_url']}")
 
-            filename = f"{data[0]['id']}.mp3"
+            filename = f"{title}.mp3"
             filepath = download_audio(data[0]['audio_url'], output_directory, filename)
 
             print(f"Downloaded audio files to: {filepath}")
 
             break
-        time.sleep(5)"""
+        time.sleep(5)
 
-    image_prompts_list, title_list = LLManager.generateImagePrompts(lyrics) 
+    image_prompts_list, title_list = LLManager.generateImagePrompts(lyrics)
     img_file = ""
     for image_prompt, title in zip(image_prompts_list, title_list):
         image_prompt = LLManager.furtherImprovePrompt(image_prompt)
@@ -168,7 +172,7 @@ async def process_topicCompleteVideo(topic, product_description, LLManager, difu
                 await asyncio.sleep(3)
                 continue  # Continue the while-loop if the task is not yet completed
             break  # Exit the while-loop if the task is completed
-        
+
     video_clips = [VideoFileClip(file) for file in video_list]
     final_clip = concatenate_videoclips(video_clips)
     # Write the final concatenated clip to an output file
