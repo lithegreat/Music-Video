@@ -24,7 +24,8 @@ def uniteTags(text, LLManager):
     tags = tags + "," + " ".join(LLManager.generateExtraTags(text))
     return tags
 async def download_video(url, filename):
-    output_path = os.path.join("outputs", filename)
+    output_path = os.path.join("outputs/video", filename)
+    os.makedirs("outputs/video", exist_ok=True)
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             if response.status == 200:
@@ -118,7 +119,9 @@ async def process_topicCompleteVideo(topic, product_description, LLManager, difu
     text = LLManager.generateTextGeneralVideo(topic)
     lyrics = LLManager.getLyrics(text)
     title = topic
-    tags = uniteTags(text, LLManager)
+    # tags = uniteTags(text, LLManager)
+
+    # suno api part
     payload = {
         "prompt": lyrics,
         "tags": "Pop-Rock with a hint of Electronic elements, Moderate (around 120 BPM), 4/4, C Major, girl voice",
@@ -145,10 +148,11 @@ async def process_topicCompleteVideo(topic, product_description, LLManager, difu
             filename = f"{title}.mp3"
             filepath = download_audio(data[0]['audio_url'], output_directory, filename)
 
-            print(f"Downloaded audio files to: {filepath}")
+            print(f"Downloaded audio files to: {filepath}\n")
 
             break
         time.sleep(5)
+    # end of suno api part
 
     image_prompts_list, title_list = LLManager.generateImagePrompts(lyrics)
     img_file = ""
