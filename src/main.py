@@ -20,10 +20,8 @@ diffusionManager = diffusion()
 def uniteTags(text, LLManager):
     tempo = LLManager.getTempo(text)
     key = LLManager.getKey(text)
-    audio_recording = LLManager.getAudioRecording(text)
-    vocal_performance = LLManager.getVocalPerformance(text)
     time_signature = LLManager.getTimeSignature(text)
-    tags = tempo + ' ' + key + ' ' + audio_recording + ' ' + vocal_performance + ' ' + time_signature
+    tags = tempo + ' ' + key + ' ' + time_signature
     # print(f"Tags: {tags} \n End of tags \n")
     return tags
 
@@ -106,11 +104,11 @@ async def process_topic(topic, product_description, LLManager, diffusionManager,
         break
 
     # Concatenate all videos for the current topic
-    clips = [VideoFileClip(video) for video in video_list]
-    final_clip = concatenate_videoclips(clips)
-    final_clip.write_videofile(
-        f"{topic.replace(' ', '_')}_final_video.mp4", codec="libx264"
-    )
+    #clips = [VideoFileClip(video) for video in video_list]
+    #final_clip = concatenate_videoclips(clips)
+    #final_clip.write_videofile(
+        #f"{topic.replace(' ', '_')}_final_video.mp4", codec="libx264"
+    #)
     #audio_clip_1 = AudioFileClip(f"{title}_audio1.mp3")
     #audio_clip_2 = AudioFileClip(f"{title}_audio2.mp3")
     #final_audio_clip = concatenate_audioclips([audio_clip_1, audio_clip_2])"""
@@ -121,15 +119,15 @@ async def process_topic(topic, product_description, LLManager, diffusionManager,
     #final_clip_with_audio.write_videofile(final_output_filename, codec="libx264", audio_codec="aac")
     #print(f"Video generated with the frame approach successfully! Output file: {final_output_filename}")
 
-async def process_topicCompleteVideo(topic, product_description, LLManager, access_token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsidXNlcl91dWlkIjoiOGU2NzZmYTUtZGM5MS00MGU1LWJkZDEtNWRmZTFmY2JmOTU0IiwiY2xpZW50X2lkIjoiIn0sImV4cCI6MTcyMDg2NDM3N30.Zgb5a1sWIs5tNqTGRNgmzqQrgnqjiUzQmB8miKVWJ2U"):
+async def process_topicCompleteVideo(topic, product_description, LLManager, difussionManager, access_token):
     video_list = []
-    text = LLManager.generateText(topic, product_description)
+    #text = LLManager.generateText(topic, product_description)
+    text = LLManager.generateTextGeneralVideo(topic)
     lyrics = LLManager.getLyrics(text)
-    title = LLManager.getTitle(text)
+    title = topic
     tags = uniteTags(text, LLManager)
 
-
-    """payload = {
+    payload = {
         "prompt": lyrics,
         "tags": "pop metal male melancholic",
         "title": title,
@@ -155,82 +153,55 @@ async def process_topicCompleteVideo(topic, product_description, LLManager, acce
 
             break
         time.sleep(5)"""
-
-    image_prompts, key_frame_list = LLManager.generateImagePrompts(text)
-    image_prompts_list = LLManager.extractKeyFrames(image_prompts)
-
-
+    
+    image_prompts_list = LLManager.generateImagePrompts(lyrics) 
     # img = diffusionManager.generateImage(image_prompt, steps=20)
     #title = LLManager.extractKeyFrameTitle(image_prompts)
     #filename = f"{topic}.png"
     # img.save(filename)
     img_file = ""
-    combined_string = " ".join(key_frame_list)
-
-
-    # Generate video
-    make_json = dreamMachineMake(combined_string, access_token, img_file)
-    print(make_json)
-    task_id = make_json[0]["id"]
-    while True:
-        response_json = refreshDreamMachine(access_token)
-        for it in response_json:
-            if it["id"] == task_id:
-                print(f"Processing state {it['state']}")
-                if it["video"]:
-                    video_url = it["video"]["url"]
-                    video_filename = f"{title}.mp4"
-                    await download_video(video_url, video_filename)
-                    video_list.append(video_filename)
-                    break
-        await asyncio.sleep(3)
-        break
-    final_clip = VideoFileClip(video_list[0])
-    final_clip.write_videofile(
-        f"{topic.replace(' ', '_')}_final_video.mp4", codec="libx264"
-    )
-    #audio_clip_1 = AudioFileClip(f"{title}_audio1.mp3")
+    video_list = []
+    for image_prompt in image_prompts_list: 
+        scene_title = LLManager.extractIndividualKeyFrameTitle(image_prompt)
+        make_json = dreamMachineMake(image_prompt, access_token, img_file)
+        task_id = make_json[0]["id"]
+        while True:
+            response_json = refreshDreamMachine(access_token)
+            for it in response_json:
+                if it["id"] == task_id:
+                    print(f"Processing state {it['state']}")
+                    if it["video"]:
+                        video_url = it["video"]["url"]
+                        video_filename = f"{scene_title}.mp4"
+                        await download_video(video_url, video_filename)
+                        video_list.append(video_filename)
+            await asyncio.sleep(3)
+            break
+    video_clips = [VideoFileClip(file) for file in video_list]
+    final_clip = concatenate_videoclips(video_clips)
+    # Write the final concatenated clip to an output file
+    final_clip.write_videofile(f'{title}.mp4')
+    #final_clip = VideoFileClip(video_list[0])
+    #final_clip.write_videofile(
+       # f"{topic.replace(' ', '_')}_final_video.mp4", codec="libx264"
+       # 
+    #) """
+    audio_clip_1 = AudioFileClip(f"{title}.mp3")
     #audio_clip_2 = AudioFileClip(f"{title}_audio2.mp3")
     #final_audio_clip = concatenate_audioclips([audio_clip_1, audio_clip_2])
 
-    #final_clip_with_audio = final_clip.set_audio(audio_clip_1)
-    #final_output_filename = f"{topic.replace(' ', '_')}_final_output.mp4"
-    #final_clip_with_audio.write_videofile(final_output_filename, codec="libx264", audio_codec="aac")
-    #print(f"Video generated with the whole video approach successfully! Output file: {final_output_filename}")
-    """
-    # Define a queue of prompts
-    prompts = deque(key_frame_list)
-    while prompts:
-        prompt = prompts.popleft()  # Get the next prompt from the queue
-        # The image path can be empty
-        img_file = ""
-
-        print(f"Processing prompt: {prompt}")
-        make_json = dreamMachineMake(prompt, access_token, img_file)
-        print(make_json)
-        task_id = make_json[0]["id"]
-
-        while True:
-            response_json = refreshDreamMachine(access_token)
-
-            for it in response_json:
-                if it["id"] == task_id:
-                    print(f"proceeding state {it['state']}")
-                    if it['video']:
-                        print(f"New video link: {it['video']['url']}")
-                        break
-            await asyncio.sleep(3)
-
-            break
-     """
+    final_clip_with_audio = final_clip.set_audio(audio_clip_1)
+    final_output_filename = f"{topic.replace(' ', '_')}_final_output.mp4"
+    final_clip_with_audio.write_videofile(final_output_filename, codec="libx264", audio_codec="aac")
+    print(f"Video generated with the whole video approach successfully! Output file: {final_output_filename}")
 
 async def main():
     # Initialize managers
     topic_list = ["I met my ex on Tik-Tok"]
-    access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsidXNlcl91dWlkIjoiOGU2NzZmYTUtZGM5MS00MGU1LWJkZDEtNWRmZTFmY2JmOTU0IiwiY2xpZW50X2lkIjoiIn0sImV4cCI6MTcyMDg5NDI2M30.CIW7Qs1ZSpTXBlFLgoA5t2Vi3di1e6DzFoFfmuux6Jc'
+    access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsidXNlcl91dWlkIjoiOGU2NzZmYTUtZGM5MS00MGU1LWJkZDEtNWRmZTFmY2JmOTU0IiwiY2xpZW50X2lkIjoiIn0sImV4cCI6MTcyMDk1NTUwNX0.GndB3mUDReX7soOkhWNINXVxzjAsOztH_dYxM6ahX7c'
     tasks = []
     for topic in topic_list:
-        tasks.append(process_topic(topic, product_description, LLManager, diffusionManager, access_token))
+        tasks.append(process_topicCompleteVideo(topic, product_description, LLManager, diffusionManager, access_token))
     await asyncio.gather(*tasks)
 
 
