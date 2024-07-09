@@ -101,9 +101,7 @@ async def process_topic(topic, product_description, LLManager, diffusionManager,
     # Concatenate all videos for the current topic
     clips = [VideoFileClip(video) for video in video_list]
     final_clip = concatenate_videoclips(clips)
-    final_clip.write_videofile(
-        #f"{topic.replace(' ', '_')}_final_video.mp4", codec="libx264"
-    #)
+    final_clip.write_videofile(f"{topic.replace(' ', '_')}_final_video.mp4", codec="libx264")
     audio_clip_1 = AudioFileClip(f"{title}_audio1.mp3")
     #audio_clip_2 = AudioFileClip(f"{title}_audio2.mp3")
     #final_audio_clip = concatenate_audioclips([audio_clip_1, audio_clip_2])"""
