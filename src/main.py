@@ -44,7 +44,6 @@ async def process_topic(topic, product_description, LLManager, diffusionManager,
     title = LLManager.getTitle(text)
     tags = uniteTags(text, LLManager)
 
-    """
     payload = {
         "prompt": lyrics,
         "tags": tags, 
@@ -66,7 +65,7 @@ async def process_topic(topic, product_description, LLManager, diffusionManager,
             download_audio(audio_url_1, f"{title}_audio1.mp3")
             download_audio(audio_url_2, f"{title}_audio2.mp3")
             break
-        time.sleep(5)"""
+        time.sleep(5)
     
     image_prompts, story = LLManager.generateImagePrompts(text) #Image prompt list in blank
     image_prompts_list = LLManager.extractKeyFrames(image_prompts)
@@ -100,20 +99,20 @@ async def process_topic(topic, product_description, LLManager, diffusionManager,
         break
 
     # Concatenate all videos for the current topic
-    #clips = [VideoFileClip(video) for video in video_list]
-    #final_clip = concatenate_videoclips(clips)
-    #final_clip.write_videofile(
+    clips = [VideoFileClip(video) for video in video_list]
+    final_clip = concatenate_videoclips(clips)
+    final_clip.write_videofile(
         #f"{topic.replace(' ', '_')}_final_video.mp4", codec="libx264"
     #)
-    #audio_clip_1 = AudioFileClip(f"{title}_audio1.mp3")
+    audio_clip_1 = AudioFileClip(f"{title}_audio1.mp3")
     #audio_clip_2 = AudioFileClip(f"{title}_audio2.mp3")
     #final_audio_clip = concatenate_audioclips([audio_clip_1, audio_clip_2])"""
 
 
-    #final_clip_with_audio = final_clip.set_audio(audio_clip_1)
-    #final_output_filename = f"{topic.replace(' ', '_')}_final_output.mp4"
-    #final_clip_with_audio.write_videofile(final_output_filename, codec="libx264", audio_codec="aac")
-    #print(f"Video generated with the frame approach successfully! Output file: {final_output_filename}")
+    final_clip_with_audio = final_clip.set_audio(audio_clip_1)
+    final_output_filename = f"{topic.replace(' ', '_')}_final_output.mp4"
+    final_clip_with_audio.write_videofile(final_output_filename, codec="libx264", audio_codec="aac")
+    print(f"Video generated with the frame approach successfully! Output file: {final_output_filename}")
 
 async def process_topicCompleteVideo(topic, product_description, LLManager, difussionManager, access_token):
     video_list = []
