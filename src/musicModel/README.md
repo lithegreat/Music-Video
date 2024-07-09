@@ -152,3 +152,205 @@ if __name__ == "__main__":
         time.sleep(5)
 
 ```
+```markdown
+# Music Model Class
+
+This Python class provides functionalities to generate music and voice audio using a pre-trained model, as well as extract keynotes from the generated audio.
+
+## Requirements
+
+- Python 3.x
+- `audiocraft` library
+- `torch` library
+- `soundfile` library
+- `librosa` library
+- `pydub` library
+- `gTTS` library
+
+Install the required libraries using:
+```sh
+pip install audiocraft torch soundfile librosa pydub gtts
+```
+
+## Class: `musicModel`
+
+### `__init__(self, model_type: str, audio_length)`
+
+Initializes the `musicModel` class.
+
+- **Parameters:**
+  - `model_type` (str): The type of the model to be used.
+  - `audio_length` (int): The duration of the audio to be generated in seconds.
+
+- **Example:**
+  ```python
+  music_model = musicModel(model_type="melody", audio_length=30)
+  ```
+
+### `__set_audio_length(self)`
+
+Sets the audio length for the model's generation parameters. This is an internal method.
+
+### `generateAudio(self, instructions)`
+
+Generates audio based on the provided instructions.
+
+- **Parameters:**
+  - `instructions` (str): The instructions for generating the audio.
+
+- **Returns:**
+  - `res` (list): The generated audio.
+
+- **Example:**
+  ```python
+  audio = music_model.generateAudio("Generate a calm and soothing melody.")
+  ```
+
+### `__display_audio(self, audio)`
+
+Displays the generated audio in the notebook. This is an internal method.
+
+### `generateVoice(self, lyrics)`
+
+Generates a voice audio based on the provided lyrics using Google Text-to-Speech (gTTS).
+
+- **Parameters:**
+  - `lyrics` (str): The lyrics to be converted to voice.
+
+- **Returns:**
+  - `tts` (gTTS): The generated voice audio.
+
+- **Example:**
+  ```python
+  voice = music_model.generateVoice("Hello, this is a generated voice.")
+  ```
+
+### `save_audio(self, res, filename)`
+
+Saves the generated audio to a file.
+
+- **Parameters:**
+  - `res` (ndarray): The generated audio data.
+  - `filename` (str): The name of the file to save the audio.
+
+- **Example:**
+  ```python
+  music_model.save_audio(audio, "output.mp3")
+  ```
+
+### `extract_keynotes(self, audio)`
+
+Extracts keynotes from the provided audio file.
+
+- **Parameters:**
+  - `audio` (str): The path to the audio file.
+
+- **Example:**
+  ```python
+  music_model.extract_keynotes("output.mp3")
+  ```
+
+### `extract_keyPointsVoice(self, voice)`
+
+Extracts key points from the provided voice file.
+
+- **Parameters:**
+  - `voice` (str): The path to the voice file.
+
+- **Example:**
+  ```python
+  music_model.extract_keyPointsVoice("voice.mp3")
+  ```
+
+## Usage Example
+
+The following script demonstrates how to initialize the `musicModel` class, generate audio and voice, save the audio, and extract keynotes from the audio.
+
+```python
+# Import the necessary libraries
+from audiocraft.models import musicgen
+from audiocraft.utils.notebook import display_audio
+import torch
+import soundfile as sf
+import librosa
+from pydub import AudioSegment
+import io
+from gtts import gTTS
+
+# Define the musicModel class
+class musicModel: 
+    def __init__(self, model_type: str, audio_length):
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.model = musicgen.MusicGen.get_pretrained(model_type, device=self.device)
+        self.audio_length = audio_length
+        self.__set_audio_length()
+
+    def __set_audio_length(self):
+        self.model.set_generation_params(duration=self.audio_length)
+    
+    def generateAudio(self, instructions): 
+        res = self.model.generate([instructions], progress=True)
+        self.__display_audio(res)
+        self.save_audio(res[0], "output.mp3")
+        return res 
+
+    def __display_audio(self, audio): 
+        display_audio(audio, 32000)
+
+    def generateVoice(self, lyrics):
+        tts = gTTS(lyrics, lang='en')
+        tts.save("voice.mp3")
+        return tts
+
+    def save_audio(self, res, filename):
+        audio_buffer = io.BytesIO()
+        audio_segment = AudioSegment(
+            res.tobytes(), 
+            frame_rate=22050, 
+            sample_width=res.dtype.itemsize, 
+            channels=1  
+        )
+        audio_segment.export(audio_buffer, format="mp3")
+        
+        with open(filename, "wb") as f:
+            f.write(audio_buffer.getbuffer())
+
+    def extract_keynotes(self, audio):
+        music_file = "output.mp3"
+        y_music, sr_music = librosa.load(music_file, sr=None)
+        pitches, magnitudes = librosa.core.piptrack(y=y_music, sr=sr_music)
+        melody = []
+        for t in range(pitches.shape[1]):
+            index = magnitudes[:, t].argmax()
+            pitch = pitches[index, t]
+            if pitch > 0:  
+                melody.append(pitch)
+            else:
+                melody.append(0)
+        melody_midi = librosa.hz_to_midi(melody)
+    
+    def extract_keyPointsVoice(self, voice): 
+        voice_file = "voice.mp3"
+        y_voice, sr_voice = librosa.load(voice_file, sr=None)
+        phoneme_segments = librosa.effects.split(y_voice, top_db=30)
+        phonemes = [y_voice[start:end] for start, end in phoneme_segments]
+
+# Initialize the musicModel
+music_model = musicModel(model_type="melody", audio_length=30)
+
+# Generate audio
+audio = music_model.generateAudio("Generate a calm and soothing melody.")
+
+# Generate voice
+voice = music_model.generateVoice("Hello, this is a generated voice.")
+
+# Save the generated audio
+music_model.save_audio(audio[0], "output.mp3")
+
+# Extract keynotes from the audio
+music_model.extract_keynotes("output.mp3")
+
+# Extract key points from the voice
+music_model.extract_keyPointsVoice("voice.mp3")
+```
+```
