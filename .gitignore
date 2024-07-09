@@ -1,3 +1,6 @@
 /output/
 /.vscode/
 src/__pycache__/
+**/__pycache__/
+**/*.pyc
+**/*.mp4
