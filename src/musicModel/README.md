@@ -1,4 +1,3 @@
-```markdown
 # Audio Generation and Management Module
 
 This Python module provides functions to interact with a backend service for generating and managing audio files based on provided prompts and other parameters.
@@ -151,5 +150,5 @@ if __name__ == "__main__":
             break
         # sleep 5s
         time.sleep(5)
-```
+
 ```
