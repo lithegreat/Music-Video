@@ -249,30 +249,39 @@ class LLM:
         return image_prompts
     
     def extractKeyFrames(self, keyframes):
-        pattern = re.compile(r"""\*\*Scene\s(?P<number>\d+):\s(?P<title>.*?)\*\*\nPrompt:\n (?P<prompt>.*?)\nNegative\sprompt:\n(?P<negative_prompt>.*?)\n""", re.DOTALL | re.VERBOSE)
-
-        scenes = [match.groupdict() for match in pattern.finditer(keyframes)]
-
         scene_list = []
-        for scene in scenes:
-            scene_str = (
-                f"Scene {scene['number']}: {scene['title']}\n"
-                f"Prompt: {scene['prompt']}\n"
-                f"Negative Prompt: {scene['negative_prompt']}\n"
-            )
-            scene_list.append(scene_str)
-        return scene_list
+        title_list = []
+        pattern = r"""Scene \d+: (.*?)\nPhysical scenario: (.*?)\nCharacter/s physical description: (.*?)\nCharacter actions: (.*?)\nPlot development: (.*?)\nNegative prompt: (.*?)\n"""
+        matches = re.findall(pattern, keyframes, re.DOTALL)
+        output = ""
+        for i, match in enumerate(matches):
+            title  = match[0].strip()
+            output += f"  Physical scenario: {match[1].strip()}\n"
+            output += f"  Character/s physical description: {match[2].strip()}\n"
+            output += f"  Character actions: {match[3].strip()}\n"
+            output += f"  Plot development: {match[4].strip()}\n"
+            output += f"  Negative prompt: {match[5].strip()}\n"
+            scene_list.append(output)
+            title_list.append(title)
+    
+        return scene_list, title_list
+    
+    def furtherImprovePrompt(self, prompt): 
+        return self.ask_llama_3_8b_TOGETHER_API(f"Improve the following scene by eliminating irrelevant details and improving engagement quality, maintain the same format: {prompt}")
+    def generateExtraTags(self, lyrics): 
+        answer = self.ask_llama_3_8b_TOGETHER_API(f"Get 10 words, that describe the characteristcs of the song join them by comas do not use numbers only maximum 10 words, {lyrics}")
+        lines = answer.strip().split('\n')
+        return lines[2]
     
     def extractIndividualKeyFrameTitle(self, keyframe):
         pattern = re.compile(r"Scene\s\d+:\s(?P<title>.*?)\n")
-
         match = pattern.search(keyframe)
-
         if match:
             title = match.group("title")
             return title
         else:
             print("No title found")
+
 
     def extractKeyFrameTitle(self, keyframe):
         title_match = re.search(r'\*\*(Keyframe \d+: [^*]+)\*\*', keyframe)

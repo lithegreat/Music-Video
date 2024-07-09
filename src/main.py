@@ -22,9 +22,8 @@ def uniteTags(text, LLManager):
     key = LLManager.getKey(text)
     time_signature = LLManager.getTimeSignature(text)
     tags = tempo + ' ' + key + ' ' + time_signature
-    # print(f"Tags: {tags} \n End of tags \n")
+    tags = tags + "," + " ".join(LLManager.generateExtraTags(text))
     return tags
-
 async def download_video(url, filename):
     output_path = os.path.join("../output/video", filename)
     async with aiohttp.ClientSession() as session:
@@ -46,10 +45,11 @@ async def process_topic(topic, product_description, LLManager, diffusionManager,
     title = LLManager.getTitle(text)
     tags = uniteTags(text, LLManager)
 
-    """payload = {
-        "prompt": lyrics.replace("\n", "\\n"),
-        "tags": tags.replace("\n", "\\n"), 
-        "title": title, 
+    """
+    payload = {
+        "prompt": lyrics,
+        "tags": tags, 
+        "title": topic, 
         "make_instrumental": False,
         "wait_audio": False
     }
@@ -67,12 +67,10 @@ async def process_topic(topic, product_description, LLManager, diffusionManager,
             download_audio(audio_url_1, f"{title}_audio1.mp3")
             download_audio(audio_url_2, f"{title}_audio2.mp3")
             break
-        time.sleep(5)
-    """
-
+        time.sleep(5)"""
+    
     image_prompts, story = LLManager.generateImagePrompts(text) #Image prompt list in blank
     image_prompts_list = LLManager.extractKeyFrames(image_prompts)
-
 
     for image_prompt in image_prompts_list:
         img = diffusionManager.generateImage(image_prompt, steps=20)
@@ -82,7 +80,6 @@ async def process_topic(topic, product_description, LLManager, diffusionManager,
         print("Filename: ", filename)
         img.save(filename)
 
-        print(animation_prompt)
         # Generate video
         make_json = dreamMachineMake(animation_prompt, access_token, filename)
         print("Make JSON: ", make_json)
@@ -126,8 +123,7 @@ async def process_topicCompleteVideo(topic, product_description, LLManager, difu
     lyrics = LLManager.getLyrics(text)
     title = topic
     tags = uniteTags(text, LLManager)
-
-    payload = {
+    """payload = {
         "prompt": lyrics,
         "tags": "pop metal male melancholic",
         "title": title,
@@ -139,7 +135,7 @@ async def process_topicCompleteVideo(topic, product_description, LLManager, difu
     print(f"Audio IDs: {audio_id}")
 
 
-    output_directory = "../output/audio"
+    output_directory = ""
 
     for _ in range(60):
         data = get_audio_information(audio_id)
@@ -153,51 +149,44 @@ async def process_topicCompleteVideo(topic, product_description, LLManager, difu
 
             break
         time.sleep(5)"""
-    
-    image_prompts_list = LLManager.generateImagePrompts(lyrics) 
-    # img = diffusionManager.generateImage(image_prompt, steps=20)
-    #title = LLManager.extractKeyFrameTitle(image_prompts)
-    #filename = f"{topic}.png"
-    # img.save(filename)
+
+    image_prompts_list, title_list = LLManager.generateImagePrompts(lyrics) 
     img_file = ""
-    video_list = []
-    for image_prompt in image_prompts_list: 
-        scene_title = LLManager.extractIndividualKeyFrameTitle(image_prompt)
+    for image_prompt, title in zip(image_prompts_list, title_list):
+        image_prompt = LLManager.furtherImprovePrompt(image_prompt)
         make_json = dreamMachineMake(image_prompt, access_token, img_file)
         task_id = make_json[0]["id"]
+
         while True:
             response_json = refreshDreamMachine(access_token)
             for it in response_json:
                 if it["id"] == task_id:
                     print(f"Processing state {it['state']}")
-                    if it["video"]:
+                    if it["state"] == "completed" and it["video"]:
                         video_url = it["video"]["url"]
-                        video_filename = f"{scene_title}.mp4"
+                        video_filename = f"{title}.mp4"
                         await download_video(video_url, video_filename)
                         video_list.append(video_filename)
-            await asyncio.sleep(3)
-            break
+                        break  # Exit the for-loop once the video is downloaded
+            else:
+                await asyncio.sleep(3)
+                continue  # Continue the while-loop if the task is not yet completed
+            break  # Exit the while-loop if the task is completed
+        
     video_clips = [VideoFileClip(file) for file in video_list]
     final_clip = concatenate_videoclips(video_clips)
     # Write the final concatenated clip to an output file
     final_clip.write_videofile(f'{title}.mp4')
-    #final_clip = VideoFileClip(video_list[0])
-    #final_clip.write_videofile(
-       # f"{topic.replace(' ', '_')}_final_video.mp4", codec="libx264"
-       # 
-    #) """
-    audio_clip_1 = AudioFileClip(f"{title}.mp3")
-    #audio_clip_2 = AudioFileClip(f"{title}_audio2.mp3")
-    #final_audio_clip = concatenate_audioclips([audio_clip_1, audio_clip_2])
+    #audio_clip_1 = AudioFileClip(f"{title}.mp3")
 
-    final_clip_with_audio = final_clip.set_audio(audio_clip_1)
-    final_output_filename = f"{topic.replace(' ', '_')}_final_output.mp4"
-    final_clip_with_audio.write_videofile(final_output_filename, codec="libx264", audio_codec="aac")
-    print(f"Video generated with the whole video approach successfully! Output file: {final_output_filename}")
+    #final_clip_with_audio = final_clip.set_audio(audio_clip_1)
+    #final_output_filename = f"{topic.replace(' ', '_')}_final_output.mp4"
+    #final_clip_with_audio.write_videofile(final_output_filename, codec="libx264", audio_codec="aac")
+    #print(f"Video generated with the whole video approach successfully! Output file: {final_output_filename}")
 
 async def main():
     # Initialize managers
-    topic_list = ["I met my ex on Tik-Tok"]
+    topic_list = ["A book of memories"]
     access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsidXNlcl91dWlkIjoiOGU2NzZmYTUtZGM5MS00MGU1LWJkZDEtNWRmZTFmY2JmOTU0IiwiY2xpZW50X2lkIjoiIn0sImV4cCI6MTcyMDk1NTUwNX0.GndB3mUDReX7soOkhWNINXVxzjAsOztH_dYxM6ahX7c'
     tasks = []
     for topic in topic_list:
