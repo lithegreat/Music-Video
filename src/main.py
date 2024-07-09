@@ -3,14 +3,13 @@ import asyncio
 import time
 import aiohttp
 import aiofiles
-from LLM_processing import LLM
-from imageGenerator import diffusion
-from util import dreamMachineMake, refreshDreamMachine
-from suno_api import custom_generate_audio, get_audio_information, download_audio
+from LLMProcessing.LLM_processing import LLM
+from imageVideoGeneration.imageGenerator import diffusion
+from imageVideoGeneration.util import dreamMachineMake, refreshDreamMachine
+from musicModel.suno_api import custom_generate_audio, get_audio_information, download_audio
 import matplotlib.pyplot as plt
 from moviepy.editor import VideoFileClip, concatenate_videoclips, AudioFileClip, concatenate_audioclips
 import re 
-
 
 product_description = """Amazon Essentials Men's Short Sleeve T-Shirt with Crew Neck in Regular Fit, Pack of 2 Material Composition: Solids: 100% Cotton Heathered: 60% Cotton, 40% Polyester, Care Instructions: Machine wash warm, Tumble dry: Closure Type, Button: Collar Style, Crew neck"""
 
@@ -25,7 +24,7 @@ def uniteTags(text, LLManager):
     tags = tags + "," + " ".join(LLManager.generateExtraTags(text))
     return tags
 async def download_video(url, filename):
-    output_path = os.path.join("../output/video", filename)
+    output_path = os.path.join("outputs", filename)
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             if response.status == 200:

@@ -3,7 +3,6 @@ from audiocraft.models import musicgen
 from audiocraft.utils.notebook import display_audio
 import torch
 import soundfile as sf
-class musicModel:
 import librosa
 from pydub import AudioSegment
 import io
