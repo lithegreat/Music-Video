@@ -9,7 +9,9 @@ from imageVideoGeneration.util import dreamMachineMake, refreshDreamMachine
 from musicModel.suno_api import custom_generate_audio, get_audio_information, download_audio
 import matplotlib.pyplot as plt
 from moviepy.editor import VideoFileClip, concatenate_videoclips, AudioFileClip, concatenate_audioclips
-import re
+# import tkinter as tk
+# from tkinter import scrolledtext, messagebox
+# from pathlib import Path
 
 product_description = """Amazon Essentials Men's Short Sleeve T-Shirt with Crew Neck in Regular Fit, Pack of 2 Material Composition: Solids: 100% Cotton Heathered: 60% Cotton, 40% Polyester, Care Instructions: Machine wash warm, Tumble dry: Closure Type, Button: Collar Style, Crew neck"""
 
@@ -24,8 +26,7 @@ def uniteTags(text, LLManager):
     tags = tags + "," + " ".join(LLManager.generateExtraTags(text))
     return tags
 async def download_video(url, filename):
-    output_path = os.path.join("outputs/video", filename)
-    os.makedirs("outputs/video", exist_ok=True)
+    output_path = os.path.join("outputs", filename)
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             if response.status == 200:
@@ -134,7 +135,7 @@ async def process_topicCompleteVideo(topic, product_description, LLManager, difu
     print(f"Audio IDs: {audio_id}")
 
 
-    output_directory = "outputs/audio/"
+    output_directory = "outputs"
 
     start_time = time.time()
 
@@ -144,6 +145,7 @@ async def process_topicCompleteVideo(topic, product_description, LLManager, difu
         data = get_audio_information(audio_id)
         if data[0]["status"] == "streaming":
             print(f"{data[0]['id']} ==> {data[0]['audio_url']}")
+            print("Downloading audio file, please wait...")
 
             filename = f"{title}.mp3"
             filepath = download_audio(data[0]['audio_url'], output_directory, filename)
@@ -157,8 +159,11 @@ async def process_topicCompleteVideo(topic, product_description, LLManager, difu
     image_prompts_list, title_list = LLManager.generateImagePrompts(lyrics)
     img_file = ""
     for image_prompt, title in zip(image_prompts_list, title_list):
-        image_prompt = LLManager.furtherImprovePrompt(image_prompt)
+        image_prompt = LLManager.furtherImprovePrompt(image_prompt).replace('\n', '').strip()
+
+        print("Image Prompt: ", image_prompt)
         make_json = dreamMachineMake(image_prompt, access_token, img_file)
+        print("Make JSON: ", make_json)
         task_id = make_json[0]["id"]
 
         while True:
@@ -177,21 +182,27 @@ async def process_topicCompleteVideo(topic, product_description, LLManager, difu
                 continue  # Continue the while-loop if the task is not yet completed
             break  # Exit the while-loop if the task is completed
 
-    video_clips = [VideoFileClip(file) for file in video_list]
-    final_clip = concatenate_videoclips(video_clips)
-    # Write the final concatenated clip to an output file
-    final_clip.write_videofile(f'{title}.mp4')
-    #audio_clip_1 = AudioFileClip(f"{title}.mp3")
+    for file in video_list:
+        video_file_path = os.path.join("./outputs", file)
 
-    #final_clip_with_audio = final_clip.set_audio(audio_clip_1)
-    #final_output_filename = f"{topic.replace(' ', '_')}_final_output.mp4"
-    #final_clip_with_audio.write_videofile(final_output_filename, codec="libx264", audio_codec="aac")
-    #print(f"Video generated with the whole video approach successfully! Output file: {final_output_filename}")
+    audio_file_path = os.path.join("./outputs", f"{title}.mp3")
+
+    video_clips = [VideoFileClip(video_file_path) for video_file_path in [os.path.join("./outputs", file) for file in video_list]]
+    final_clip = concatenate_videoclips(video_clips)
+
+    final_clip.write_videofile(f'{title}.mp4')
+    audio_clip_1 = AudioFileClip(audio_file_path)
+    final_clip_with_audio = final_clip.set_audio(audio_clip_1)
+
+    final_output_filename = os.path.join("./outputs", f"{topic.replace(' ', '_')}_final_output.mp4")
+    final_clip_with_audio.write_videofile(final_output_filename, codec="libx264", audio_codec="aac")
+
+    print(f"Video generated with the whole video approach successfully! Output file: {final_output_filename}")
 
 async def main():
     # Initialize managers
     topic_list = ["A book of memories"]
-    access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsidXNlcl91dWlkIjoiOGU2NzZmYTUtZGM5MS00MGU1LWJkZDEtNWRmZTFmY2JmOTU0IiwiY2xpZW50X2lkIjoiIn0sImV4cCI6MTcyMDk1NTUwNX0.GndB3mUDReX7soOkhWNINXVxzjAsOztH_dYxM6ahX7c'
+    access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsidXNlcl91dWlkIjoiNDU4M2UxNzMtNmJkMi00NDlhLTllNzAtYzE1M2ViNzQ1MzliIiwiY2xpZW50X2lkIjoiIn0sImV4cCI6MTcyMDY0MzkwNX0.YcEZY-U1FNfuNuWSVWNudqfhF_BAg6RsMiu9VoFZZNc'
     tasks = []
     for topic in topic_list:
         tasks.append(process_topicCompleteVideo(topic, product_description, LLManager, diffusionManager, access_token))
